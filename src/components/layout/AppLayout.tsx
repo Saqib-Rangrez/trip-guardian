@@ -46,12 +46,14 @@ export function AppLayout({ children }: AppLayoutProps) {
           <div className="flex h-16 items-center justify-between">
             {/* Logo */}
             <Link to="/trips" className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-nav-accent">
-                <Shield className="h-5 w-5 text-nav-foreground" />
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-nav-accent overflow-hidden">
+                  <img src="/image.jpg" alt="Travel Risk Analyzer" className="h-full w-full object-cover" />
+                </div>
+                <span className="text-xl font-semibold text-nav-foreground">
+                  Travel Risk Analyzer
+                </span>
               </div>
-              <span className="text-lg font-semibold text-nav-foreground hidden sm:block">
-                Travel Risk Analyzer
-              </span>
             </Link>
 
             {/* Desktop Nav */}
