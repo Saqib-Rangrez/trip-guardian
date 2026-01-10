@@ -97,7 +97,7 @@ export default function Profile() {
 
   return (
     <AppLayout>
-      <div className="max-w-2xl mx-auto animate-fade-in">
+      <div className="animate-fade-in">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-foreground">Traveler Profile</h1>
           <p className="text-muted-foreground mt-1">
@@ -105,7 +105,9 @@ export default function Profile() {
           </p>
         </div>
 
-        <div className="bg-card rounded-xl border border-border p-6 shadow-card">
+        <div className="grid lg:grid-cols-2 gap-8">
+          {/* Profile Form Card */}
+          <div className="bg-card rounded-xl border border-border p-6 shadow-card">
           <div className="flex items-center gap-4 pb-6 border-b border-border mb-6">
             <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10">
               <User className="h-7 w-7 text-primary" />
@@ -218,6 +220,35 @@ export default function Profile() {
               )}
             </Button>
           </form>
+          </div>
+
+          {/* Info Panel */}
+          <div className="space-y-6">
+            <div className="bg-card rounded-xl border border-border p-6 shadow-card">
+              <h3 className="font-semibold text-foreground mb-4">Why we need this information</h3>
+              <ul className="space-y-3 text-sm text-muted-foreground">
+                <li className="flex items-start gap-3">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-medium flex-shrink-0">1</div>
+                  <span>Passport details help us verify visa requirements for your destinations</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-medium flex-shrink-0">2</div>
+                  <span>Health conditions allow us to provide personalized health risk alerts</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-medium flex-shrink-0">3</div>
+                  <span>Frequent traveler status helps prioritize your risk assessments</span>
+                </li>
+              </ul>
+            </div>
+
+            <div className="bg-muted/50 rounded-xl border border-border p-6">
+              <h3 className="font-semibold text-foreground mb-2">Data Privacy</h3>
+              <p className="text-sm text-muted-foreground">
+                Your personal information is encrypted and stored securely. We never share your data with third parties without your explicit consent.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </AppLayout>

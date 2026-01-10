@@ -87,7 +87,7 @@ export default function TripDetails() {
 
   return (
     <AppLayout>
-      <div className="max-w-4xl mx-auto space-y-8 animate-fade-in">
+      <div className="space-y-8 animate-fade-in">
         {/* Back Button */}
         <Button
           variant="ghost"
@@ -179,111 +179,145 @@ export default function TripDetails() {
           )}
 
           {riskAnalysis && (
-            <div className="space-y-4 animate-slide-up">
-              {/* Overall Score Card */}
-              <div className="bg-card rounded-xl border border-border p-6 shadow-card">
-                <div className="flex items-center justify-between mb-6">
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">Overall Risk Score</p>
-                    <div className="flex items-center gap-4">
-                      <span className="text-4xl font-bold text-foreground">
+            <div className="space-y-6 animate-slide-up">
+              {/* Overall Score Card - Full Width Hero */}
+              <div className="bg-gradient-to-br from-card to-muted/30 rounded-xl border border-border p-8 shadow-card">
+                <div className="grid md:grid-cols-3 gap-8 items-center">
+                  {/* Score Display */}
+                  <div className="text-center md:text-left">
+                    <p className="text-sm text-muted-foreground mb-2">Overall Risk Score</p>
+                    <div className="flex items-center gap-4 justify-center md:justify-start">
+                      <span className="text-5xl font-bold text-foreground">
                         {riskAnalysis.overall_score}
                       </span>
+                      <span className="text-2xl text-muted-foreground">/100</span>
+                    </div>
+                    <div className="mt-3">
                       <RiskBadge level={riskAnalysis.risk_level} size="lg" />
                     </div>
                   </div>
-                  <div className="text-right text-sm text-muted-foreground">
-                    <p>Analyzed on</p>
-                    <p className="font-medium">
-                      {format(new Date(riskAnalysis.analyzed_at), 'MMM d, yyyy h:mm a')}
-                    </p>
-                  </div>
-                </div>
 
-                {/* Risk Score Bar */}
-                <div className="h-3 bg-muted rounded-full overflow-hidden">
-                  <div
-                    className={cn(
-                      'h-full rounded-full transition-all duration-500',
-                      riskAnalysis.risk_level === 'Low' && 'bg-risk-low',
-                      riskAnalysis.risk_level === 'Medium' && 'bg-risk-medium',
-                      riskAnalysis.risk_level === 'High' && 'bg-risk-high'
-                    )}
-                    style={{ width: `${riskAnalysis.overall_score}%` }}
-                  />
+                  {/* Risk Score Bar - Center */}
+                  <div className="md:col-span-2">
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span>Low Risk</span>
+                        <span>Medium Risk</span>
+                        <span>High Risk</span>
+                      </div>
+                      <div className="h-4 bg-muted rounded-full overflow-hidden relative">
+                        <div className="absolute inset-0 flex">
+                          <div className="w-1/3 bg-risk-low/20"></div>
+                          <div className="w-1/3 bg-risk-medium/20"></div>
+                          <div className="w-1/3 bg-risk-high/20"></div>
+                        </div>
+                        <div
+                          className={cn(
+                            'h-full rounded-full transition-all duration-500 relative z-10',
+                            riskAnalysis.risk_level === 'Low' && 'bg-risk-low',
+                            riskAnalysis.risk_level === 'Medium' && 'bg-risk-medium',
+                            riskAnalysis.risk_level === 'High' && 'bg-risk-high'
+                          )}
+                          style={{ width: `${riskAnalysis.overall_score}%` }}
+                        />
+                      </div>
+                      <div className="text-right text-xs text-muted-foreground">
+                        Analyzed on {format(new Date(riskAnalysis.analyzed_at), 'MMM d, yyyy h:mm a')}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              {/* Risk Categories */}
-              <div className="grid md:grid-cols-2 gap-4">
+              {/* Risk Categories - 2x2 Grid */}
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="bg-card rounded-xl border border-border p-5">
                   <div className="flex items-center gap-3 mb-3">
                     <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-orange-100">
                       <AlertTriangle className="h-5 w-5 text-orange-600" />
                     </div>
-                    <h3 className="font-semibold text-foreground">Political & War Risk</h3>
+                    <h3 className="font-semibold text-foreground text-sm">Political Risk</h3>
                   </div>
                   <p className="text-sm text-muted-foreground">{riskAnalysis.political_risk}</p>
-                  {riskAnalysis.war_risk && (
-                    <p className="text-sm text-muted-foreground mt-2">{riskAnalysis.war_risk}</p>
-                  )}
                 </div>
 
                 <div className="bg-card rounded-xl border border-border p-5">
                   <div className="flex items-center gap-3 mb-3">
                     <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-100">
-                      <Heart className="h-5 w-5 text-red-600" />
+                      <Shield className="h-5 w-5 text-red-600" />
                     </div>
-                    <h3 className="font-semibold text-foreground">Health & Safety</h3>
+                    <h3 className="font-semibold text-foreground text-sm">War/Conflict</h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground">{riskAnalysis.war_risk || 'No active conflicts reported'}</p>
+                </div>
+
+                <div className="bg-card rounded-xl border border-border p-5">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-pink-100">
+                      <Heart className="h-5 w-5 text-pink-600" />
+                    </div>
+                    <h3 className="font-semibold text-foreground text-sm">Health Risks</h3>
                   </div>
                   <p className="text-sm text-muted-foreground">{riskAnalysis.health_risk}</p>
-                  {riskAnalysis.safety_notes && (
-                    <p className="text-sm text-muted-foreground mt-2">{riskAnalysis.safety_notes}</p>
-                  )}
                 </div>
-              </div>
 
-              {/* Key Factors */}
-              {riskAnalysis.key_factors.length > 0 && (
                 <div className="bg-card rounded-xl border border-border p-5">
-                  <div className="flex items-center gap-3 mb-4">
+                  <div className="flex items-center gap-3 mb-3">
                     <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-100">
                       <FileText className="h-5 w-5 text-blue-600" />
                     </div>
-                    <h3 className="font-semibold text-foreground">Key Risk Factors</h3>
+                    <h3 className="font-semibold text-foreground text-sm">Safety Notes</h3>
                   </div>
-                  <ul className="space-y-2">
-                    {riskAnalysis.key_factors.map((factor, index) => (
-                      <li key={index} className="flex items-start gap-2 text-sm text-muted-foreground">
-                        <span className="text-primary mt-1">•</span>
-                        {factor}
-                      </li>
-                    ))}
-                  </ul>
+                  <p className="text-sm text-muted-foreground">{riskAnalysis.safety_notes || 'Standard precautions apply'}</p>
                 </div>
-              )}
+              </div>
 
-              {/* Recommendations */}
-              {riskAnalysis.recommendations.length > 0 && (
-                <div className="bg-primary/5 border border-primary/20 rounded-xl p-5">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
-                      <Sparkles className="h-5 w-5 text-primary" />
+              {/* Key Factors & Recommendations - Side by Side */}
+              <div className="grid lg:grid-cols-2 gap-6">
+                {/* Key Factors */}
+                {riskAnalysis.key_factors.length > 0 && (
+                  <div className="bg-card rounded-xl border border-border p-6">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100">
+                        <AlertTriangle className="h-5 w-5 text-amber-600" />
+                      </div>
+                      <h3 className="font-semibold text-foreground">Key Risk Factors</h3>
                     </div>
-                    <h3 className="font-semibold text-foreground">AI Recommendations</h3>
+                    <ul className="space-y-3">
+                      {riskAnalysis.key_factors.map((factor, index) => (
+                        <li key={index} className="flex items-start gap-3 text-sm">
+                          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-amber-100 text-amber-600 text-xs font-medium flex-shrink-0 mt-0.5">
+                            !
+                          </span>
+                          <span className="text-muted-foreground">{factor}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                  <ul className="space-y-3">
-                    {riskAnalysis.recommendations.map((rec, index) => (
-                      <li key={index} className="flex items-start gap-3 text-sm">
-                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-medium flex-shrink-0">
-                          {index + 1}
-                        </span>
-                        <span className="text-foreground">{rec}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+                )}
+
+                {/* Recommendations */}
+                {riskAnalysis.recommendations.length > 0 && (
+                  <div className="bg-primary/5 border border-primary/20 rounded-xl p-6">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
+                        <Sparkles className="h-5 w-5 text-primary" />
+                      </div>
+                      <h3 className="font-semibold text-foreground">AI Recommendations</h3>
+                    </div>
+                    <ul className="space-y-3">
+                      {riskAnalysis.recommendations.map((rec, index) => (
+                        <li key={index} className="flex items-start gap-3 text-sm">
+                          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-medium flex-shrink-0">
+                            {index + 1}
+                          </span>
+                          <span className="text-foreground">{rec}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>
