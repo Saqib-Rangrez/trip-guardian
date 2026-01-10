@@ -88,7 +88,7 @@ export default function CreateTrip() {
 
   return (
     <AppLayout>
-      <div className="max-w-2xl mx-auto animate-fade-in">
+      <div className="animate-fade-in">
         <Button
           variant="ghost"
           size="sm"
@@ -99,8 +99,10 @@ export default function CreateTrip() {
           Back to Trips
         </Button>
 
-        <div className="bg-card rounded-xl border border-border p-6 shadow-card">
-          <h1 className="text-2xl font-bold text-foreground mb-6">Create New Trip</h1>
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Form Column */}
+          <div className="lg:col-span-2 bg-card rounded-xl border border-border p-6 shadow-card">
+            <h1 className="text-2xl font-bold text-foreground mb-6">Create New Trip</h1>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
@@ -220,6 +222,35 @@ export default function CreateTrip() {
               </Button>
             </div>
           </form>
+          </div>
+
+          {/* Info Sidebar */}
+          <div className="space-y-6">
+            <div className="bg-card rounded-xl border border-border p-6 shadow-card">
+              <h3 className="font-semibold text-foreground mb-4">Trip Tips</h3>
+              <ul className="space-y-3 text-sm text-muted-foreground">
+                <li className="flex items-start gap-2">
+                  <span className="text-primary">•</span>
+                  <span>Enter exact city names for accurate risk assessment</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary">•</span>
+                  <span>Include country codes for better destination matching</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary">•</span>
+                  <span>Provide detailed purpose for personalized recommendations</span>
+                </li>
+              </ul>
+            </div>
+
+            <div className="bg-primary/5 rounded-xl border border-primary/20 p-6">
+              <h3 className="font-semibold text-foreground mb-2">AI-Powered Analysis</h3>
+              <p className="text-sm text-muted-foreground">
+                After creating your trip, you can run our AI-powered risk analysis to get comprehensive safety insights, political assessments, and health recommendations.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </AppLayout>
