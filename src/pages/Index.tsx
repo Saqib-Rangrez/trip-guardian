@@ -1,5 +1,6 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import Landing from './Landing';
 
 const Index = () => {
   const { isAuthenticated, isLoading } = useAuth();
@@ -12,7 +13,7 @@ const Index = () => {
     return <Navigate to="/trips" replace />;
   }
 
-  return <Navigate to="/login" replace />;
+  return <Landing />;
 };
 
 export default Index;
