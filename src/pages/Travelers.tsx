@@ -26,7 +26,7 @@ export default function Travelers() {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await api.get<TravelerProfile[]>('/api/travelers/');
+      const data = await api.get<TravelerProfile[]>('/core/travelers/');
       setTravelers(data);
     } catch (err) {
       const apiError = err as ApiError;

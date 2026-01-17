@@ -19,24 +19,31 @@ import {
 } from '@/components/ui/select';
 
 interface TripFormData {
-  destination: string;
-  origin: string;
-  departure_date: string;
-  return_date: string;
+  destination_country: string;
+  destination_city: string;
+  start_date: string;
+  end_date: string;
   purpose: string;
-  traveler?: string;
+  accommodation: string;
+  transport_mode: string;
+  traveler: string;
 }
 
 export default function CreateTrip() {
   const navigate = useNavigate();
-  const { isAdmin } = useAuth();
+  const { isAdmin, user } = useAuth();
+
   const [formData, setFormData] = useState<TripFormData>({
-    destination: '',
-    origin: '',
-    departure_date: '',
-    return_date: '',
+    destination_country: '',
+    destination_city: '',
+    start_date: '',
+    end_date: '',
     purpose: '',
+    accommodation: '',
+    transport_mode: '',
+    traveler: isAdmin ? '' : (user?.id || ''),
   });
+
   const [travelers, setTravelers] = useState<TravelerProfile[]>([]);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -51,7 +58,7 @@ export default function CreateTrip() {
   const fetchTravelers = async () => {
     setIsLoadingTravelers(true);
     try {
-      const data = await api.get<TravelerProfile[]>('/api/travelers/');
+      const data = await api.get<TravelerProfile[]>('/core/travelers/');
       setTravelers(data);
     } catch (err) {
       console.error('Failed to fetch travelers');
@@ -68,15 +75,57 @@ export default function CreateTrip() {
     e.preventDefault();
     setError('');
 
-    if (new Date(formData.return_date) < new Date(formData.departure_date)) {
-      setError('Return date must be after departure date');
+    // Validate required fields
+    if (
+      !formData.destination_country ||
+      !formData.destination_city ||
+      !formData.start_date ||
+      !formData.end_date ||
+      !formData.purpose ||
+      !formData.accommodation ||
+      !formData.transport_mode
+    ) {
+      setError('Please fill in all required fields');
+      return;
+    }
+
+    // Traveler validation
+    const travelerValue = formData.traveler.trim();
+    if (!travelerValue) {
+      setError(
+        isAdmin
+          ? 'Please select a traveler'
+          : 'Please enter your traveler ID'
+      );
+      return;
+    }
+
+    const travelerId = parseInt(travelerValue, 10);
+    if (isNaN(travelerId) || travelerId < 1) {
+      setError('Traveler ID must be a valid positive number');
+      return;
+    }
+
+    if (new Date(formData.end_date) < new Date(formData.start_date)) {
+      setError('End date must be after start date');
       return;
     }
 
     setIsLoading(true);
 
     try {
-      await api.post('/api/trips/', formData);
+      const payload = {
+        destination_country: formData.destination_country,
+        destination_city: formData.destination_city,
+        start_date: formData.start_date,
+        end_date: formData.end_date,
+        purpose: formData.purpose,
+        accommodation: formData.accommodation,
+        transport_mode: formData.transport_mode,
+        traveler: travelerId,           // ← guaranteed valid number
+      };
+
+      await api.post('/core/trips/', payload);
       navigate('/trips');
     } catch (err) {
       const apiError = err as ApiError;
@@ -104,124 +153,177 @@ export default function CreateTrip() {
           <div className="lg:col-span-2 bg-card rounded-xl border border-border p-6 shadow-card">
             <h1 className="text-2xl font-bold text-foreground mb-6">Create New Trip</h1>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {error && (
-              <div className="flex items-center gap-2 p-4 rounded-lg bg-destructive/10 text-destructive animate-scale-in">
-                <AlertCircle className="h-4 w-4 flex-shrink-0" />
-                <p className="text-sm">{error}</p>
-              </div>
-            )}
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {error && (
+                <div className="flex items-center gap-2 p-4 rounded-lg bg-destructive/10 text-destructive animate-scale-in">
+                  <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                  <p className="text-sm">{error}</p>
+                </div>
+              )}
 
-            {isAdmin && (
+              {isAdmin ? (
+                <div className="space-y-2">
+                  <Label htmlFor="traveler">Traveler *</Label>
+                  <Select
+                    value={formData.traveler}
+                    onValueChange={(value) => handleChange('traveler', value)}
+                    disabled={isLoadingTravelers || isLoading}
+                  >
+                    <SelectTrigger>
+                      <SelectValue
+                        placeholder={
+                          isLoadingTravelers ? 'Loading travelers...' : 'Select traveler'
+                        }
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {travelers.map((traveler) => (
+                        <SelectItem key={traveler.id} value={String(traveler.id)}>
+                          {traveler.passport_issuing_country} - {traveler.passport_number}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <Label htmlFor="traveler">Your Traveler ID *</Label>
+                  <Input
+                    id="traveler"
+                    type="number"
+                    value={formData.traveler}
+                    onChange={(e) => handleChange('traveler', e.target.value)}
+                    placeholder="Enter your traveler ID"
+                    min="1"
+                    required
+                    disabled={isLoading}
+                  />
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="destination_country">Destination Country *</Label>
+                  <Input
+                    id="destination_country"
+                    type="text"
+                    value={formData.destination_country}
+                    onChange={(e) => handleChange('destination_country', e.target.value)}
+                    placeholder="Egypt"
+                    required
+                    disabled={isLoading}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="destination_city">Destination City *</Label>
+                  <Input
+                    id="destination_city"
+                    type="text"
+                    value={formData.destination_city}
+                    onChange={(e) => handleChange('destination_city', e.target.value)}
+                    placeholder="Cairo"
+                    required
+                    disabled={isLoading}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="start_date">Start Date *</Label>
+                  <Input
+                    id="start_date"
+                    type="date"
+                    value={formData.start_date}
+                    onChange={(e) => handleChange('start_date', e.target.value)}
+                    required
+                    disabled={isLoading}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="end_date">End Date *</Label>
+                  <Input
+                    id="end_date"
+                    type="date"
+                    value={formData.end_date}
+                    onChange={(e) => handleChange('end_date', e.target.value)}
+                    required
+                    disabled={isLoading}
+                  />
+                </div>
+              </div>
+
               <div className="space-y-2">
-                <Label htmlFor="traveler">Traveler</Label>
-                <Select
-                  value={formData.traveler || ''}
-                  onValueChange={(value) => handleChange('traveler', value)}
-                  disabled={isLoadingTravelers}
+                <Label htmlFor="purpose">Purpose of Travel *</Label>
+                <Textarea
+                  id="purpose"
+                  value={formData.purpose}
+                  onChange={(e) => handleChange('purpose', e.target.value)}
+                  placeholder="Business meeting, conference, client visit..."
+                  rows={3}
+                  disabled={isLoading}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="accommodation">Accommodation *</Label>
+                  <Input
+                    id="accommodation"
+                    type="text"
+                    value={formData.accommodation}
+                    onChange={(e) => handleChange('accommodation', e.target.value)}
+                    placeholder="Hilton Cairo Zamalek"
+                    required
+                    disabled={isLoading}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="transport_mode">Transport Mode *</Label>
+                  <Select
+                    value={formData.transport_mode}
+                    onValueChange={(value) => handleChange('transport_mode', value)}
+                    disabled={isLoading}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select transport mode" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Flight">Flight</SelectItem>
+                      <SelectItem value="Train">Train</SelectItem>
+                      <SelectItem value="Car">Car</SelectItem>
+                      <SelectItem value="Bus">Bus</SelectItem>
+                      <SelectItem value="Ship">Ship</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => navigate('/trips')}
+                  disabled={isLoading}
+                  className="flex-1"
                 >
-                  <SelectTrigger>
-                    <SelectValue placeholder={isLoadingTravelers ? 'Loading...' : 'Select traveler'} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {travelers.map((traveler) => (
-                      <SelectItem key={traveler.id} value={traveler.id}>
-                        {traveler.passport_issuing_country} - {traveler.passport_number}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={isLoading} className="flex-1">
+                  {isLoading ? (
+                    <>
+                      <LoadingSpinner size="sm" />
+                      Creating...
+                    </>
+                  ) : (
+                    'Create Trip'
+                  )}
+                </Button>
               </div>
-            )}
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="origin">Origin</Label>
-                <Input
-                  id="origin"
-                  type="text"
-                  value={formData.origin}
-                  onChange={(e) => handleChange('origin', e.target.value)}
-                  placeholder="New York, USA"
-                  required
-                  disabled={isLoading}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="destination">Destination</Label>
-                <Input
-                  id="destination"
-                  type="text"
-                  value={formData.destination}
-                  onChange={(e) => handleChange('destination', e.target.value)}
-                  placeholder="London, UK"
-                  required
-                  disabled={isLoading}
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="departure_date">Departure Date</Label>
-                <Input
-                  id="departure_date"
-                  type="date"
-                  value={formData.departure_date}
-                  onChange={(e) => handleChange('departure_date', e.target.value)}
-                  required
-                  disabled={isLoading}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="return_date">Return Date</Label>
-                <Input
-                  id="return_date"
-                  type="date"
-                  value={formData.return_date}
-                  onChange={(e) => handleChange('return_date', e.target.value)}
-                  required
-                  disabled={isLoading}
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="purpose">Purpose of Travel</Label>
-              <Textarea
-                id="purpose"
-                value={formData.purpose}
-                onChange={(e) => handleChange('purpose', e.target.value)}
-                placeholder="Business meeting, conference, client visit..."
-                rows={3}
-                disabled={isLoading}
-              />
-            </div>
-
-            <div className="flex gap-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => navigate('/trips')}
-                disabled={isLoading}
-                className="flex-1"
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={isLoading} className="flex-1">
-                {isLoading ? (
-                  <>
-                    <LoadingSpinner size="sm" />
-                    Creating...
-                  </>
-                ) : (
-                  'Create Trip'
-                )}
-              </Button>
-            </div>
-          </form>
+            </form>
           </div>
 
           {/* Info Sidebar */}

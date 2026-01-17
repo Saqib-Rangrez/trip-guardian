@@ -33,7 +33,7 @@ export default function Trips() {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await api.get<Trip[]>('/api/trips/');
+      const data = await api.get<Trip[]>('/core/trips/');
       setTrips(data);
     } catch (err) {
       const apiError = err as ApiError;
@@ -48,11 +48,11 @@ export default function Trips() {
   }, []);
 
   const filteredTrips = trips.filter((trip) =>
-    trip.destination.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    trip.origin.toLowerCase().includes(searchQuery.toLowerCase())
+    (trip.destination_city && trip.destination_city.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    (trip.destination_country && trip.destination_country.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
-  const getStatusColor = (status: Trip['status']) => {
+  const getStatusColor = (status?: string) => {
     switch (status) {
       case 'planned':
         return 'bg-blue-100 text-blue-700 border-blue-200';
@@ -63,7 +63,7 @@ export default function Trips() {
       case 'cancelled':
         return 'bg-destructive/10 text-destructive border-destructive/30';
       default:
-        return 'bg-muted text-muted-foreground border-border';
+        return 'bg-blue-100 text-blue-700 border-blue-200';
     }
   };
 
@@ -141,10 +141,10 @@ export default function Trips() {
                       </div>
                       <div>
                         <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
-                          {trip.destination}
+                          {trip.destination_city}, {trip.destination_country}
                         </h3>
                         <p className="text-sm text-muted-foreground">
-                          from {trip.origin}
+                          Trip ID: {trip.id}
                         </p>
                       </div>
                     </div>
@@ -155,17 +155,14 @@ export default function Trips() {
                   <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
                     <Calendar className="h-4 w-4" />
                     <span>
-                      {format(new Date(trip.departure_date), 'MMM d')} - {format(new Date(trip.return_date), 'MMM d, yyyy')}
+                      {format(new Date(trip.start_date), 'MMM d')} - {format(new Date(trip.end_date), 'MMM d, yyyy')}
                     </span>
                   </div>
 
-                  {/* Status & Purpose */}
+                  {/* Purpose */}
                   <div className="flex items-center justify-between">
-                    <span className={cn(
-                      'text-xs font-medium px-2.5 py-1 rounded-full border capitalize',
-                      getStatusColor(trip.status)
-                    )}>
-                      {trip.status}
+                    <span className="text-xs font-medium px-2.5 py-1 rounded-full border capitalize bg-blue-100 text-blue-700 border-blue-200">
+                      Active
                     </span>
                     {trip.purpose && (
                       <span className="text-xs text-muted-foreground truncate max-w-[120px]">

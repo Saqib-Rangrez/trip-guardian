@@ -159,7 +159,7 @@ export default function Register() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="traveler">Traveler</SelectItem>
-              <SelectItem value="admin_hr">Admin / HR</SelectItem>
+              <SelectItem value="admin">Admin</SelectItem>
             </SelectContent>
           </Select>
         </div>

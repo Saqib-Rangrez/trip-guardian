@@ -37,7 +37,7 @@ export default function Profile() {
   const fetchProfile = async () => {
     setIsLoading(true);
     try {
-      const data = await api.get<TravelerProfile[]>('/api/travelers/');
+      const data = await api.get<TravelerProfile[]>('/core/travelers/');
       if (data.length > 0) {
         const userProfile = data.find(p => p.user === user?.id) || data[0];
         setProfile(userProfile);
@@ -72,10 +72,10 @@ export default function Profile() {
 
     try {
       if (profile) {
-        await api.put(`/api/travelers/${profile.id}/`, formData);
+        await api.put(`/core/travelers/${profile.id}/`, formData);
         setSuccess('Profile updated successfully');
       } else {
-        const newProfile = await api.post<TravelerProfile>('/api/travelers/', formData);
+        const newProfile = await api.post<TravelerProfile>('/core/travelers/', formData);
         setProfile(newProfile);
         setSuccess('Profile created successfully');
       }
